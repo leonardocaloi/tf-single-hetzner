@@ -3,7 +3,7 @@ output "server_ids" {
   description = "The IDs of the worker servers"
 }
 
-output "master_id" {
-  description = "ID of the master server"
-  value       = hcloud_server.master_vps.id
+output "manager_id" {
+  description = "ID of the manager server"
+  value       = hcloud_server.manager_vps.id
 }

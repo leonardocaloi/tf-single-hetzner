@@ -3,8 +3,8 @@ variable "hetzner_token" {
   type        = string
 }
 
-variable "master_server_type" {
-  description = "Type of the master server"
+variable "manager_server_type" {
+  description = "Type of the manager server"
   type        = string
   default     = "CPX11"
 }
@@ -18,7 +18,6 @@ variable "worker_server_type" {
 variable "worker_count" {
   description = "Number of worker servers to create"
   type        = number
-  default     = 4
 }
 
 variable "image" {
@@ -39,7 +38,7 @@ variable "ssh_keys" {
   default     = []
 }
 
-variable "master_firewall_id" {
+variable "manager_firewall_id" {
   description = "The ID of the network to attach to the server"
   type        = string
 }
@@ -53,3 +52,9 @@ variable "network_id" {
   description = "Network ID to attach the VPS to"
   type        = string
 }
+
+variable "floating_ip_id" {
+  description = "IP address of the created floating IP"
+  type        = string
+}
+

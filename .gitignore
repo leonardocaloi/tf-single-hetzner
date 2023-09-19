@@ -1,7 +1,7 @@
 # Ignorar o diretório .terraform
 .terraform/
 credentials
-
+ssh_pub_keys
 # Ignorar arquivos de estado
 *.tfstate
 *.tfstate.* 

@@ -4,19 +4,19 @@ variable "hetzner_token" {
 }
 
 variable "network_name" {
-  description = "Name for the Kubernetes network"
+  description = "Name for the swarm network"
   type        = string
-  default     = "k8s-network"
+  default     = "swarm-network"
 }
 
 variable "network_ip_range" {
-  description = "IP Range for the Kubernetes network"
+  description = "IP Range for the swarm network"
   type        = string
   default     = "10.0.0.0/16"
 }
 
-variable "master_subnet_range" {
-  description = "IP range for the master subnet"
+variable "manager_subnet_range" {
+  description = "IP range for the manager subnet"
   type        = string
   default     = "10.0.1.0/24"
 }
@@ -32,3 +32,4 @@ variable "network_zone" {
   type        = string
   default     = "us-east"
 }
+

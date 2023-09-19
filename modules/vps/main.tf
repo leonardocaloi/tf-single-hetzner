@@ -11,24 +11,27 @@ terraform {
   }
 }
 
+data "hcloud_floating_ip" "floating_ip" {
+  id = var.floating_ip_id
+}
 
-resource "hcloud_server" "master_vps" {
-  name        = "master"
-  server_type = var.master_server_type
-  image       = var.image
-  location    = var.location
-  ssh_keys    = var.ssh_keys
-  labels      = { "node" : "master" }
-  firewall_ids = [ var.master_firewall_id ]
+resource "hcloud_server" "manager_vps" {
+  name         = "manager"
+  server_type  = var.manager_server_type
+  image        = var.image
+  location     = var.location
+  ssh_keys     = var.ssh_keys
+  labels       = { "node" : "manager" }
+  firewall_ids = [ var.manager_firewall_id ]
+  user_data = <<-EOT
+    #cloud-config
+    runcmd:
+      - "sudo ip addr add ${data.hcloud_floating_ip.floating_ip.ip_address} dev eth0"
+  EOT
   network {
     ip   = "10.0.1.1"
     network_id = var.network_id
   }
-}
-
-resource "hcloud_server_network" "master_vps_network" {
-  server_id  = hcloud_server.master_vps.id
-  network_id = var.network_id
 }
 
 resource "hcloud_server" "worker_vps" {
@@ -46,9 +49,12 @@ resource "hcloud_server" "worker_vps" {
   }
 }
 
-
-resource "hcloud_server_network" "worker_vps_network" {
-  count = var.worker_count
-  server_id  = hcloud_server.worker_vps[count.index].id
+resource "hcloud_server_network" "manager_vps_network" {
+  server_id  = hcloud_server.manager_vps.id
   network_id = var.network_id
+}
+
+resource "hcloud_floating_ip_assignment" "floating_ip_assignment" {
+  floating_ip_id = var.floating_ip_id
+  server_id      = hcloud_server.manager_vps.id
 }

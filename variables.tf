@@ -33,7 +33,7 @@ variable "a_record_name" {
   type        = string
 }
 
-variable "master_server_type" {
+variable "manager_server_type" {
   description = "Tipo do servidor mestre na Hetzner"
   type        = string
 }
@@ -55,16 +55,6 @@ variable "image" {
 
 variable "location" {
   description = "Localização dos servidores"
-  type        = string
-}
-
-variable "load_balancer_name" {
-  description = "Nome para o Load Balancer"
-  type        = string
-}
-
-variable "load_balancer_location" {
-  description = "Localização do Load Balancer"
   type        = string
 }
 
@@ -93,8 +83,8 @@ variable "network_ip_range" {
   type        = string
 }
 
-variable "master_subnet_range" {
-  description = "The IP range for the master subnet"
+variable "manager_subnet_range" {
+  description = "The IP range for the manager subnet"
   type        = string
 }
 
@@ -108,12 +98,7 @@ variable "network_zone" {
   type        = string
 }
 
-variable "load_balancer_type" {
-  description = "The network zone"
-  type        = string
+variable "global_ssh_allowed_ips" {
+  description = "Lista de IPs permitidos para acesso SSH"
+  type        = list(string)
 }
-
-# variable "server_ids" {
-#   description = "The network zone"
-#   type        = string
-# }

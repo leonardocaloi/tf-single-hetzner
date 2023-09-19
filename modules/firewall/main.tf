@@ -11,114 +11,94 @@ terraform {
   }
 }
 
-
-resource "hcloud_firewall" "master_firewall" {
-  name = "master-firewall"
-
+resource "hcloud_firewall" "manager_firewall" {
+  name = "manager-firewall"
+  labels  = { "node" : "manager" }
   # Allow SSH access
   rule {
     direction   = "in"
     protocol    = "tcp"
     port        = "22"
-    source_ips  = var.ssh_allowed_ips
+    source_ips  = var.global_ssh_allowed_ips
   }
 
+  # Permitir tráfego HTTPS
   rule {
     direction   = "in"
-    protocol    = "udp"
-    port        = "8472" # VXLAN (ou 6081 para Geneve)
-    source_ips  = [var.worker_subnet_ip_range, var.master_subnet_ip_range]
+    protocol    = "tcp"
+    port        = "443"
+    source_ips  = var.http_https_allowed_ips
   }
 
-   rule {
+  # Permitir tráfego HTTP
+  rule {
     direction   = "in"
-    protocol    = "udp"
-    port        = "4789" # VXLAN
-    source_ips  = [var.worker_subnet_ip_range, var.master_subnet_ip_range]
+    protocol    = "tcp"
+    port        = "80"
+    source_ips  = var.http_https_allowed_ips
+  }
+
+  # Regras específicas do Swarm
+  rule {
+    direction   = "in"
+    protocol    = "tcp"
+    port        = "2377"
+    source_ips  = var.global_ssh_allowed_ips
   }
 
   rule {
     direction   = "in"
     protocol    = "tcp"
-    port        = "4240" # Health check do Cilium
-    source_ips  = [var.worker_subnet_ip_range, var.master_subnet_ip_range]
+    port        = "7946"
+    source_ips  = [var.worker_subnet_ip_range, var.manager_subnet_ip_range]
   }
 
-  # Kubernetes master node ports
-  dynamic "rule" {
-    for_each = var.k8s_master_ports
-    content {
-      direction   = "in"
-      protocol    = "tcp"
-      port        = rule.value.port
-      source_ips  = rule.value.source_ips
-    }
+  rule {
+    direction   = "in"
+    protocol    = "udp"
+    port        = "4789"
+    source_ips  = [var.worker_subnet_ip_range, var.manager_subnet_ip_range]
+  }
+
+  rule {
+    direction   = "in"
+    protocol    = "udp"
+    port        = "7946"
+    source_ips  = [var.worker_subnet_ip_range, var.manager_subnet_ip_range]
   }
 }
 
 resource "hcloud_firewall" "worker_firewall" {
   name = "worker-firewall"
+  labels  = { "node" : "worker" }
 
   # Allow SSH access
   rule {
     direction   = "in"
     protocol    = "tcp"
     port        = "22"
-    source_ips  = var.ssh_allowed_ips
+    source_ips  = var.global_ssh_allowed_ips
   }
 
-  # Allow HTTP traffic to the worker nodes from the world
+  # Regras específicas do Swarm
   rule {
     direction   = "in"
     protocol    = "tcp"
-    port        = "80"
-    source_ips  = ["0.0.0.0/0", "::/0"]
-  }
-
-  # Allow HTTPS traffic to the worker nodes from the world
-  rule {
-    direction   = "in"
-    protocol    = "tcp"
-    port        = "443"
-    source_ips  = ["0.0.0.0/0", "::/0"]
+    port        = "7946"
+    source_ips  = [var.manager_subnet_ip_range]
   }
 
   rule {
     direction   = "in"
     protocol    = "udp"
-    port        = "8472" # VXLAN (ou 6081 para Geneve)
-    source_ips  = [var.master_subnet_ip_range]
+    port        = "4789"
+    source_ips  = [var.manager_subnet_ip_range]
   }
 
   rule {
     direction   = "in"
     protocol    = "udp"
-    port        = "4789" # VXLAN
-    source_ips  = [var.master_subnet_ip_range]
-  }
-
-  rule {
-    direction   = "in"
-    protocol    = "tcp"
-    port        = "4240"
-    source_ips  = [var.worker_subnet_ip_range, var.master_subnet_ip_range]
-  }
-
-  rule {
-    direction   = "in"
-    protocol    = "tcp"
-    port        = "4244"
-    source_ips  = [var.worker_subnet_ip_range, var.master_subnet_ip_range]
-  }
-
-  # Kubernetes worker node ports
-  dynamic "rule" {
-    for_each = var.k8s_worker_ports
-    content {
-      direction   = "in"
-      protocol    = "tcp"
-      port        = rule.value.port
-      source_ips  = rule.value.source_ips
-    }
+    port        = "7946"
+    source_ips  = [var.manager_subnet_ip_range]
   }
 }

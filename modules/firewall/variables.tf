@@ -3,37 +3,13 @@ variable "hetzner_token" {
   type        = string
 }
 
-variable "ssh_allowed_ips" {
-  description = "List of CIDRs that are allowed to access SSH port."
+variable "global_ssh_allowed_ips" {
+  description = "Global list of CIDRs that are allowed to access SSH port."
   type        = list(string)
-  default     = ["0.0.0.0/0", "::/0"] # Default to allow SSH from any IP
 }
 
-variable "k8s_master_ports" {
-  description = "List of port configurations that should be open on Kubernetes master nodes."
-  type        = list(object({
-    port       = string,
-    source_ips = list(string)
-  }))
-  default     = [
-    { port = "6443", source_ips = ["10.0.2.0/24", "10.0.1.0/24"] } # Kubernetes API server port
-  ]
-}
-
-variable "k8s_worker_ports" {
-  description = "List of port configurations that should be open on Kubernetes worker nodes."
-  type        = list(object({
-    port       = string,
-    source_ips = list(string)
-  }))
-  default     = [
-    { port = "10250-10252", source_ips = ["10.0.1.0/24", "10.0.2.0/24"] }, # Kubelet API
-    { port = "30000-32767", source_ips = ["10.0.1.0/24", "10.0.2.0/24"] }  # Default NodePort range
-  ]
-}
-
-variable "master_subnet_ip_range" {
-  description = "IP range for the master subnet"
+variable "manager_subnet_ip_range" {
+  description = "IP range for the manager subnet"
   type        = string
   default     = "10.0.1.0/24"
 }
@@ -42,4 +18,22 @@ variable "worker_subnet_ip_range" {
   description = "IP range for the worker subnet"
   type        = string
   default     = "10.0.2.0/24"
+}
+
+variable "http_https_allowed_ips" {
+  description = "List of CIDRs that are allowed to access HTTP and HTTPS ports."
+  type        = list(string)
+  default     = ["0.0.0.0/0", "::/0"] # Default to allow HTTP and HTTPS from any IP
+}
+
+variable "swarm_specific_tcp_allowed_ips" {
+  description = "List of CIDRs that are allowed to access specific Swarm TCP ports."
+  type        = list(string)
+  default     = ["10.0.1.0/24", "10.0.2.0/24"] # Default to allow from manager and worker subnets
+}
+
+variable "swarm_specific_udp_allowed_ips" {
+  description = "List of CIDRs that are allowed to access specific Swarm UDP ports."
+  type        = list(string)
+  default     = ["10.0.1.0/24", "10.0.2.0/24"] # Default to allow from manager and worker subnets
 }

@@ -1,6 +1,6 @@
-output "master_firewall_id" {
-  description = "The ID of the master firewall"
-  value       = hcloud_firewall.master_firewall.id
+output "manager_firewall_id" {
+  description = "The ID of the manager firewall"
+  value       = hcloud_firewall.manager_firewall.id
 }
 
 output "worker_firewall_id" {
